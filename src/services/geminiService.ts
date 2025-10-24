@@ -1,15 +1,15 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { UserProfile, Meal } from "../types";
 
-// 🔐 환경변수에서 API 키 읽기 (Vite 방식)
+// 1) 환경변수에서 API 키 읽기
 const rawKey = import.meta.env.VITE_API_KEY;
 
-// 빌드/런타임 전에 키가 꼭 있어야 한다는 걸 보장
+// 2) 없으면 명확하게 중단 (이 시점 이후 rawKey는 string으로 확정됨)
 if (!rawKey) {
   throw new Error("VITE_API_KEY is not set");
 }
 
-// 여기까지 왔으면 rawKey는 string 으로 확정됨
+// 3) 공용 클라이언트 생성 (이거 하나만 쓰기)
 const ai = new GoogleGenAI({ apiKey: rawKey });
 
 export async function getMealRecommendation(
