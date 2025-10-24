@@ -1,26 +1,30 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import type { UserProfile, Meal } from '../types';
+import type { UserProfile, Meal } from "../types";
 
 // 🔐 환경변수에서 API 키 읽기 (Vite 방식)
-const apiKey = import.meta.env.VITE_API_KEY;
-if (!apiKey) {
+const rawKey = import.meta.env.VITE_API_KEY;
+
+// 빌드/런타임 전에 키가 꼭 있어야 한다는 걸 보장
+if (!rawKey) {
   throw new Error("VITE_API_KEY is not set");
 }
 
-const ai = new GoogleGenAI({ apiKey });
+// 여기까지 왔으면 rawKey는 string 으로 확정됨
+const ai = new GoogleGenAI({ apiKey: rawKey });
 
 export async function getMealRecommendation(
   profile: UserProfile,
   fridgeItems: string[],
   pastMeals: Meal[]
 ): Promise<any> {
-  const pastMealNames = pastMeals.map(m => m.menu_name).join(', ') || 'none';
+  const pastMealNames =
+    pastMeals.map((m) => m.menu_name).join(", ") || "none";
 
   const prompt = `
     Based on the following user data, recommend one new meal.
-    - Fridge Inventory: [${fridgeItems.join(', ')}]
-    - Preferences: [${profile.preferences.join(', ')}]
-    - Allergies/Dislikes: [${profile.allergies.join(', ')}]
+    - Fridge Inventory: [${fridgeItems.join(", ")}]
+    - Preferences: [${profile.preferences.join(", ")}]
+    - Allergies/Dislikes: [${profile.allergies.join(", ")}]
     - Diet Goal: ${profile.dietaryGoal}
     - Past Meals (recently eaten): [${pastMealNames}]
 
@@ -43,14 +47,19 @@ export async function getMealRecommendation(
               menu_name: { type: Type.STRING },
               required_ingredients: {
                 type: Type.ARRAY,
-                items: { type: Type.STRING },
+                items: { type: Type.STRING }
               },
-              reasoning: { type: Type.STRING },
+              reasoning: { type: Type.STRING }
             },
-            required: ["menu_id", "menu_name", "required_ingredients", "reasoning"],
-          },
-        },
-      },
+            required: [
+              "menu_id",
+              "menu_name",
+              "required_ingredients",
+              "reasoning"
+            ]
+          }
+        }
+      }
     });
 
     const jsonText = response.text;
