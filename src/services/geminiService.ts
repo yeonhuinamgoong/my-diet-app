@@ -2,9 +2,12 @@ import { GoogleGenAI, Type } from "@google/genai";
 import type { UserProfile, Meal } from "../types";
 
 /**
- * Gemini 클라이언트를 만든다.
- * - Netlify/Vite 환경 변수에서 API 키 읽음
- * - 없으면 바로 에러 (명확한 메시지)
+ * Gemini 클라이언트 생성 함수
+ * - 환경변수에서 API 키를 읽고
+ * - 없으면 에러
+ * - 있으면 GoogleGenAI 인스턴스를 반환
+ *
+ * 이 함수 말고 다른 곳(파일 아래쪽 등)에서는 절대 import.meta.env.VITE_API_KEY 직접 쓰지 마!
  */
 function getGeminiClient(): GoogleGenAI {
   const key = import.meta.env.VITE_API_KEY;
@@ -19,21 +22,19 @@ function getGeminiClient(): GoogleGenAI {
 }
 
 /**
- * 사용자 정보 기반으로 식단 추천을 요청한다.
+ * 유저 정보 기반 식단 추천 요청
  */
 export async function getMealRecommendation(
   profile: UserProfile,
   fridgeItems: string[],
   pastMeals: Meal[]
 ): Promise<any> {
-  // 1) Gemini 클라이언트 준비
+  // 항상 여기서만 Gemini 클라이언트 만든다
   const ai = getGeminiClient();
 
-  // 2) 과거 식단 요약
   const pastMealNames =
     pastMeals.map((m) => m.menu_name).join(", ") || "none";
 
-  // 3) 프롬프트 구성
   const prompt = `
     Based on the following user data, recommend one new meal.
     - Fridge Inventory: [${fridgeItems.join(", ")}]
@@ -48,7 +49,6 @@ export async function getMealRecommendation(
   `;
 
   try {
-    // 4) Gemini 호출
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: prompt,
@@ -78,7 +78,6 @@ export async function getMealRecommendation(
       }
     });
 
-    // 5) 결과 파싱
     const jsonText = response.text;
     return JSON.parse(jsonText);
   } catch (err) {
@@ -86,3 +85,4 @@ export async function getMealRecommendation(
     throw new Error("Failed to get meal recommendation from Gemini API.");
   }
 }
+
