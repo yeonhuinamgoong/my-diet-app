@@ -1,7 +1,13 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { UserProfile, Meal } from '../types';
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// 🔐 환경변수에서 API 키 읽기 (Vite 방식)
+const apiKey = import.meta.env.VITE_API_KEY;
+if (!apiKey) {
+  throw new Error("VITE_API_KEY is not set");
+}
+
+const ai = new GoogleGenAI({ apiKey });
 
 export async function getMealRecommendation(
   profile: UserProfile,
