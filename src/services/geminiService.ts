@@ -2,37 +2,34 @@ import { GoogleGenAI, Type } from "@google/genai";
 import type { UserProfile, Meal } from "../types";
 
 /**
- * 내부 전용 헬퍼:
- * - 환경변수에서 API 키를 읽고
- * - 없으면 명확하게 에러를 던지고
- * - 있으면 GoogleGenAI 클라이언트를 만들어서 돌려준다
+ * 안전하게 Gemini 클라이언트를 만든다.
+ * - Netlify 환경변수(VITE_API_KEY)를 읽는다.
+ * - 없으면 에러로 중단한다.
  */
 function getGeminiClient(): GoogleGenAI {
-  // Netlify 환경변수 → Vite 런타임으로 노출된 값
+  // Vite에서 노출된 env. env.d.ts에서 string으로 선언되어 있어야 함.
   const key = import.meta.env.VITE_API_KEY;
 
-  // 런타임 보장: 키가 없으면 여기서 바로 죽여서
-  // 이후 코드에서는 key가 string이라고 확정됨
+  // 런타임 방어. 실제로 없으면 바로 중단.
   if (!key) {
     throw new Error(
-      "VITE_API_KEY is not defined. Set it in Netlify (Site settings → Build & deploy → Environment)."
+      "VITE_API_KEY is not defined. Please set it in Netlify environment variables."
     );
   }
 
+  // 여기서 key는 string으로 확정된 상태라 TypeScript도 OK여야 한다.
   return new GoogleGenAI({ apiKey: key });
 }
 
 /**
- * 식단 추천:
- * 사용자 프로필 / 냉장고 재고 / 최근 먹은 식단을 보고
- * 새로운 한 끼 식단을 제안
+ * 식단 추천: 사용자 정보/냉장고 재고/최근 식단을 보고 새 식단 아이디어를 만든다.
  */
 export async function getMealRecommendation(
   profile: UserProfile,
   fridgeItems: string[],
   pastMeals: Meal[]
 ): Promise<any> {
-  // 항상 함수 안에서 클라이언트 생성
+  // 항상 여기서 클라이언트 받아와 (다른 곳에서 만들지 말기!)
   const ai = getGeminiClient();
 
   const pastMealNames =
@@ -80,8 +77,6 @@ export async function getMealRecommendation(
       }
     });
 
-    // SDK가 response.text 또는 response.text() 등 형태일 수 있는데
-    // 네 코드에서는 response.text 라고 썼으므로 그대로 둔다
     const jsonText = response.text;
     return JSON.parse(jsonText);
   } catch (err) {
