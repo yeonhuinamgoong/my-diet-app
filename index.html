@@ -5,24 +5,24 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI 개인 맞춤형 식단 플래너</title>
+
+    <!-- Tailwind CDN (프로토타입용). tailwind를 npm으로 안 깔았다면 이건 유지해도 됨 -->
     <script src="https://cdn.tailwindcss.com"></script>
-<script type="importmap">
-{
-  "imports": {
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.27.0",
-    "vite": "https://aistudiocdn.com/vite@^7.1.12",
-    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.0.4"
-  }
-}
-</script>
-<link rel="stylesheet" href="/index.css">
-</head>
+
+    <!-- Vite가 실제로 존재하는 CSS 파일을 번들에 포함할 수 있도록
+         프로젝트 구조에 맞춘 경로로 수정하세요.
+         만약 스타일이 src/index.css 안에 있다면 아래 href="/src/index.css" 가 맞고,
+         파일명이 다르면 그 실제 경로/파일명으로 바꿔주세요. -->
+    <link rel="stylesheet" href="/src/index.css" />
+  </head>
+
   <body class="bg-slate-50">
     <div id="root"></div>
-    <script type="module" src="/src/index.tsx"></script>
-  <script type="module" src="/index.tsx"></script>
-</body>
+
+    <!-- Vite 엔트리 스크립트
+         여기 src 값은 실제 존재하는 React 엔트리 파일로 맞춰야 합니다.
+         일반적인 Vite+React 템플릿은 src/main.tsx 입니다.
+         만약 너 프로젝트 엔트리가 src/index.tsx 라면 아래를 /src/index.tsx 로 바꿔줘. -->
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
