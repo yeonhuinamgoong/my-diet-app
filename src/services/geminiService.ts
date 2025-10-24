@@ -2,28 +2,30 @@ import { GoogleGenAI, Type } from "@google/genai";
 import type { UserProfile, Meal } from "../types";
 
 /**
- * 안전하게 Gemini 클라이언트를 만들어서 반환한다.
- * - 환경변수에서 API 키를 읽는다.
- * - 없으면 바로 에러 던진다 (undefined 불허)
- * => 함수가 성공적으로 리턴됐다는 건 apiKey가 string으로 확정됐다는 뜻이라
- *    TypeScript가 더 이상 string | undefined라고 불평하지 않는다.
+ * Gemini 클라이언트 생성기
+ * - Netlify/Vite 환경변수에서 API 키를 읽는다
+ * - 없으면 바로 에러 (명확하게 실패)
+ * - 있으면 string으로 확정된 상태에서 GoogleGenAI 생성
  */
 function getGeminiClient(): GoogleGenAI {
   const apiKey = import.meta.env.VITE_API_KEY;
 
   if (!apiKey) {
-    throw new Error("VITE_API_KEY is not set");
+    throw new Error("VITE_API_KEY is not defined. Set it in Netlify environment variables.");
   }
 
   return new GoogleGenAI({ apiKey });
 }
 
+/**
+ * 식단 추천 함수
+ */
 export async function getMealRecommendation(
   profile: UserProfile,
   fridgeItems: string[],
   pastMeals: Meal[]
 ): Promise<any> {
-  // 여기서 클라이언트 생성 (이 시점에는 apiKey가 string으로 확정된 상태)
+  // ✅ 항상 여기서 클라이언트 만들기
   const ai = getGeminiClient();
 
   const pastMealNames =
