@@ -1,22 +1,31 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { UserProfile, Meal } from "../types";
 
-// 1) 환경변수에서 API 키 읽기
-const rawKey = import.meta.env.VITE_API_KEY;
+/**
+ * 안전하게 Gemini 클라이언트를 만들어서 반환한다.
+ * - 환경변수에서 API 키를 읽는다.
+ * - 없으면 바로 에러 던진다 (undefined 불허)
+ * => 함수가 성공적으로 리턴됐다는 건 apiKey가 string으로 확정됐다는 뜻이라
+ *    TypeScript가 더 이상 string | undefined라고 불평하지 않는다.
+ */
+function getGeminiClient(): GoogleGenAI {
+  const apiKey = import.meta.env.VITE_API_KEY;
 
-// 2) 없으면 명확하게 중단 (이 시점 이후 rawKey는 string으로 확정됨)
-if (!rawKey) {
-  throw new Error("VITE_API_KEY is not set");
+  if (!apiKey) {
+    throw new Error("VITE_API_KEY is not set");
+  }
+
+  return new GoogleGenAI({ apiKey });
 }
-
-// 3) 공용 클라이언트 생성 (이거 하나만 쓰기)
-const ai = new GoogleGenAI({ apiKey: rawKey });
 
 export async function getMealRecommendation(
   profile: UserProfile,
   fridgeItems: string[],
   pastMeals: Meal[]
 ): Promise<any> {
+  // 여기서 클라이언트 생성 (이 시점에는 apiKey가 string으로 확정된 상태)
+  const ai = getGeminiClient();
+
   const pastMealNames =
     pastMeals.map((m) => m.menu_name).join(", ") || "none";
 
