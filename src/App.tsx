@@ -15,7 +15,7 @@ const getMonday = (d: Date): Date => {
 
 
 const App: React.FC = () => {
-    const [profile, setProfile] = useState<UserProfile>({
+    const [profile] = useState<UserProfile>({
         preferences: ['매운 음식', '이탈리안 요리'],
         allergies: ['땅콩'],
         dietaryGoal: '고단백, 저탄수화물'
